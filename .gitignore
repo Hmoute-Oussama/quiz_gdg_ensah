@@ -1,0 +1,18 @@
+# OS / éditeurs
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node (aucune dépendance dans ce projet, au cas où)
+node_modules/
+npm-debug.log*
+
+# Déploiement
+dist/
+build/
+
+# Fichiers temporaires
+*.tmp
+*.log
+.env
+.env.local

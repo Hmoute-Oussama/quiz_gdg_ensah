@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Quiz Tech — GDG ENSAH</title>
+    <meta name="description" content="Quiz technique dynamique organisé par le Google Developer Group ENSAH.">
+    <meta name="theme-color" content="#05070d">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%234285F4'/%3E%3Cpath d='M16 16V2a14 14 0 0 1 12.1 7z' fill='%23EA4335'/%3E%3Cpath d='M16 16h12.1A14 14 0 0 1 16 30z' fill='%23FBBC05'/%3E%3Cpath d='M16 16v14A14 14 0 0 1 3.9 16z' fill='%2334A853'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23fff'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+
+<body>
+
+    <!-- ==================== COUCHE DYNAMIQUE DE FOND ==================== -->
+    <div class="bg-layer" aria-hidden="true">
+        <canvas id="bg-canvas" class="bg-canvas"></canvas>
+        <div class="grid-overlay"></div>
+        <div class="beam"></div>
+        <div class="grain"></div>
+    </div>
+
+    <!-- ==================== EFFETS (confettis) ==================== -->
+    <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
+
+    <!-- ==================== BOUTON SON ==================== -->
+    <button id="sound-toggle" class="icon-btn" type="button" aria-label="Couper le son" aria-pressed="true">
+        <svg class="ico ico-sound-on" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 9v6h4l5 4V5L8 9H4z" />
+            <path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" />
+            <path d="M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" />
+        </svg>
+        <svg class="ico ico-sound-off" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 9v6h4l5 4V5L8 9H4z" />
+            <path d="M17 9.5l4 5M21 9.5l-4 5" fill="none" stroke="currentColor" stroke-width="1.9"
+                stroke-linecap="round" />
+        </svg>
+    </button>
+
+
+    <!-- ==================== ÉCRAN D'ACCUEIL ==================== -->
+    <main id="start-screen" class="screen active">
+        <section class="stage start-stage">
+            <div class="brand-pill">
+                <img id="brand-logo"
+                    src="https://scontent.cdninstagram.com/v/t51.82787-19/746565125_18071124299416285_8269155388636802418_n.jpg?stp=dst-jpg_s150x150_tt6&_nc_cat=100&ccb=7-5&_nc_sid=f7ccc5&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLnd3dy4xMDgwLkMzIn0%3D&_nc_ohc=VZtXq3F5Z48Q7kNvwEsgWVE&_nc_oc=AdprcVy6jU4BjKOojPxIY5vpB7ZThHBgNtc6dg7joIz5hld0kU25f8QTDMiZP9eIpYI&_nc_zt=24&_nc_ht=scontent.cdninstagram.com&_nc_gid=S6hxqf8mcDQ-t4eFn1O51w&_nc_ss=78689&oh=00_AQP5QMMtbXyspDJMw96KPNGDB09wuIucXkv2FWKVl4z-eQ&oe=6AC2F7F6"
+                    alt="Logo GDG ENSAH">
+                <span class="brand-text">GDG ENSAH</span>
+                <span class="brand-sep" aria-hidden="true"></span>
+                <span class="brand-extra">Developers Group</span>
+            </div>
+
+            <h1 class="hero-title">
+                <span class="reveal" style="--d:0ms"><span>QUIZ</span></span>
+                <span class="reveal grad" style="--d:110ms"><span>TECH</span></span>
+            </h1>
+
+            <p class="subtitle" style="--d:220ms">
+                Testez vos connaissances en technologie.<br>
+                <span class="subtitle-hi">10 questions. 15 secondes. Un seul gagnant.</span>
+            </p>
+
+            <div class="topics" style="--d:300ms">
+                <span class="chip" style="--c:var(--blue)"><i></i>IA</span>
+                <span class="chip" style="--c:var(--red)"><i></i>Programmation</span>
+                <span class="chip" style="--c:var(--yellow)"><i></i>Web</span>
+                <span class="chip" style="--c:var(--red)"><i></i>Git</span>
+                <span class="chip" style="--c:var(--green)"><i></i>Cybersécurité</span>
+                <span class="chip" style="--c:var(--blue)"><i></i>Linux</span>
+                <span class="chip" style="--c:var(--green)"><i></i>Cloud</span>
+            </div>
+
+            <div class="stats-row" style="--d:380ms">
+                <div class="stat">
+                    <span class="stat-ico" style="--c:var(--blue)">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 3l2.2 5.3L20 9l-4 4.3 1 6-5-2.9L7 19.3l1-6L4 9l5.8-.7L12 3z" />
+                        </svg>
+                    </span>
+                    <b>80</b>
+                    <small>questions</small>
+                </div>
+                <div class="stat">
+                    <span class="stat-ico" style="--c:var(--yellow)">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 9v4.5l3 1.8" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                            <path d="M9 2h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </span>
+                    <b>15s</b>
+                    <small>par question</small>
+                </div>
+                <div class="stat">
+                    <span class="stat-ico" style="--c:var(--green)">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M8 4h8v5a4 4 0 0 1-8 0V4z" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linejoin="round" />
+                            <path d="M16 5h3v2a3 3 0 0 1-3 3M8 5H5v2a3 3 0 0 0 3 3M9 20h6M12 13v7"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </span>
+                    <b>5</b>
+                    <small>niveaux</small>
+                </div>
+            </div>
+
+            <button id="start-btn" class="primary-btn lg" type="button">
+                <span>Commencer</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </button>
+
+            <p class="hint">Astuce : utilisez les touches <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> pour répondre</p>
+        </section>
+    </main>
+
+
+    <!-- ==================== ÉCRAN DE SÉLECTION DE L'ANNÉE ==================== -->
+    <main id="year-screen" class="screen">
+        <section class="stage year-stage">
+            <span class="eyebrow">Étape 1 sur 2</span>
+            <h2 class="stage-title">Sélectionnez votre année</h2>
+            <p class="stage-sub">Le niveau des questions s'adapte automatiquement à votre promotion.</p>
+
+            <div class="year-grid">
+                <button class="year-card" data-year="1" type="button">
+                    <span class="year-num">1</span>
+                    <span class="year-label">1<sup>ère</sup> année</span>
+                    <span class="year-meta">Débutant</span>
+                    <span class="year-check" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor"
+                                stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </span>
+                </button>
+                <button class="year-card" data-year="2" type="button">
+                    <span class="year-num">2</span>
+                    <span class="year-label">2<sup>ème</sup> année</span>
+                    <span class="year-meta">Initiation</span>
+                    <span class="year-check" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor"
+                                stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </span>
+                </button>
+                <button class="year-card" data-year="3" type="button">
+                    <span class="year-num">3</span>
+                    <span class="year-label">3<sup>ème</sup> année</span>
+                    <span class="year-meta">Intermédiaire</span>
+                    <span class="year-check" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor"
+                                stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </span>
+                </button>
+                <button class="year-card" data-year="4" type="button">
+                    <span class="year-num">4</span>
+                    <span class="year-label">4<sup>ème</sup> année</span>
+                    <span class="year-meta">Avancé</span>
+                    <span class="year-check" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor"
+                                stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </span>
+                </button>
+                <button class="year-card" data-year="5" type="button">
+                    <span class="year-num">5</span>
+                    <span class="year-label">5<sup>ème</sup> année</span>
+                    <span class="year-meta">Expert</span>
+                    <span class="year-check" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor"
+                                stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </span>
+                </button>
+            </div>
+
+            <button id="continue-btn" class="primary-btn lg" type="button" disabled>
+                <span>Continuer</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </button>
+
+            <button class="link-btn" type="button" data-goto="start-screen">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                Retour
+            </button>
+        </section>
+    </main>
+
+
+    <!-- ==================== ÉCRAN DU QUIZ ==================== -->
+    <main id="quiz-screen" class="screen">
+        <section class="stage quiz-stage">
+            <header class="quiz-header">
+                <div class="pill pill-progress">
+                    <span id="question-number">Question 1 / 10</span>
+                </div>
+
+                <div class="pill pill-streak" id="streak-pill" hidden>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path
+                            d="M12 2c.8 3.4-.6 5-2 6.4C8.4 10 7 11.6 7 14a5 5 0 0 0 10 0c0-1.5-.6-2.7-1.4-3.8.2 1.6-.3 2.7-1.2 3.3.3-2.6-1-5.6-2.4-7.5-.6 1.4-1.5 2.3-2.6 3 .6-2.3.4-4.6-1.4-7z" />
+                    </svg>
+                    <span id="streak-count">0</span>
+                </div>
+
+                <div class="pill pill-score">
+                    <span class="score-label">Score</span>
+                    <span id="score">0</span>
+                </div>
+            </header>
+
+            <div class="progress-track">
+                <div id="progress-bar"></div>
+            </div>
+
+            <div class="meta-row">
+                <div class="timer-widget" id="timer-widget">
+                    <svg class="timer-ring" viewBox="0 0 44 44" aria-hidden="true">
+                        <circle class="ring-track" cx="22" cy="22" r="20"></circle>
+                        <circle class="ring-fill" id="timer-ring" cx="22" cy="22" r="20"></circle>
+                    </svg>
+                    <div class="timer-inner">
+                        <span id="timer">15</span>
+                    </div>
+                </div>
+
+                <div id="difficulty" class="difficulty easy">Facile</div>
+            </div>
+
+            <h2 id="question">Chargement...</h2>
+
+            <div id="answers" class="answers"></div>
+
+            <div id="feedback" class="feedback">
+                <span class="feedback-icon" aria-hidden="true"></span>
+                <span class="feedback-text"></span>
+            </div>
+
+            <button id="next-btn" class="primary-btn hidden" type="button">
+                <span>Question suivante</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </button>
+        </section>
+    </main>
+
+
+    <!-- ==================== ÉCRAN DES RÉSULTATS ==================== -->
+    <main id="result-screen" class="screen">
+        <section class="stage result-stage">
+            <div class="result-top">
+                <div class="ring-result">
+                    <svg viewBox="0 0 120 120" aria-hidden="true">
+                        <circle class="rr-track" cx="60" cy="60" r="52"></circle>
+                        <circle class="rr-fill" id="result-ring" cx="60" cy="60" r="52"></circle>
+                    </svg>
+                    <div class="rr-center">
+                        <span class="rr-pct"><b id="result-pct">0</b><i>%</i></span>
+                        <small id="result-rank">—</small>
+                    </div>
+                </div>
+
+                <div class="result-info">
+                    <span class="result-badge" id="result-badge">Résultat</span>
+                    <p class="final-score">
+                        <span id="final-score">0</span><i>pts</i>
+                    </p>
+                    <p id="result-message" class="result-message"></p>
+                </div>
+            </div>
+
+            <div class="result-stats">
+                <div class="rstat">
+                    <small>Bonnes réponses</small>
+                    <b><span id="correct-answers">0</span><i>/10</i></b>
+                </div>
+                <div class="rstat">
+                    <small>Temps moyen</small>
+                    <b><span id="average-time">0.0</span><i>s</i></b>
+                </div>
+                <div class="rstat">
+                    <small>Meilleure série</small>
+                    <b><span id="best-streak">0</span><i>🔥</i></b>
+                </div>
+                <div class="rstat">
+                    <small>Record</small>
+                    <b><span id="best-score">0</span><i>pts</i></b>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <button id="restart-btn" class="primary-btn lg" type="button">
+                    <span>Rejouer</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 11a8 8 0 1 0-2.3 5.7" fill="none" stroke="currentColor" stroke-width="2.2"
+                            stroke-linecap="round" />
+                        <path d="M20 5v6h-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <button class="link-btn" type="button" data-goto="start-screen">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1v-9z" fill="none"
+                            stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" />
+                    </svg>
+                    Accueil
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/questions.js"></script>
+    <script src="js/quiz.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>
