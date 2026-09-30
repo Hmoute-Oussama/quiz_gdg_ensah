@@ -16,6 +16,28 @@ let meilleureSerie = 0;
 let chronometre;
 let tempsRestant = TEMPS_PAR_QUESTION;
 
+const DIFFICULTES = ["easy", "medium", "hard"];
+
+// Répartition souhaitée par promotion
+const QUOTAS = {
+    1: { easy: 7, medium: 3, hard: 0 },
+    2: { easy: 4, medium: 5, hard: 1 },
+    3: { easy: 2, medium: 6, hard: 2 },
+    4: { easy: 1, medium: 5, hard: 4 },
+    5: { easy: 0, medium: 4, hard: 6 }
+};
+
+// Catégories les plus proches d'une difficulté donnée.
+// À égalité de distance on privilégie la difficulté INFÉRIEURE :
+// une 1ère année ne doit jamais recevoir une question plus dure que prévu.
+function prochesDe(difficulte) {
+    const index = DIFFICULTES.indexOf(difficulte);
+    return DIFFICULTES
+        .map((d, i) => ({ d, distance: Math.abs(i - index) }))
+        .sort((a, b) => a.distance - b.distance || a.d - b.d)
+        .map(o => o.d);
+}
+
 
 // Mélanger un tableau (Fisher-Yates)
 function melanger(tableau) {
@@ -31,39 +53,46 @@ function melanger(tableau) {
 // Générer un quiz aléatoire selon l'année en respectant les quotas de difficulté
 function genererQuiz(annee) {
 
-    // Filtrer par année
     const disponibles = questionPool.filter(q => q.years.includes(annee));
+    const quotas = QUOTAS[annee] || { easy: 0, medium: 0, hard: 0 };
 
-    // Séparer par difficulté
-    let faciles = melanger(disponibles.filter(q => q.difficulty === "easy"));
-    let moyennes = melanger(disponibles.filter(q => q.difficulty === "medium"));
-    let difficiles = melanger(disponibles.filter(q => q.difficulty === "hard"));
-
-    // Définir les quotas selon l'année
-    let quotas = { easy: 0, medium: 0, hard: 0 };
-
-    if (annee === 1) quotas = { easy: 7, medium: 3, hard: 0 };
-    else if (annee === 2) quotas = { easy: 4, medium: 5, hard: 1 };
-    else if (annee === 3) quotas = { easy: 2, medium: 6, hard: 2 };
-    else if (annee === 4) quotas = { easy: 1, medium: 5, hard: 4 };
-    else if (annee === 5) quotas = { easy: 0, medium: 4, hard: 6 };
-
-    let selection = [];
-
-    // On extrait le nombre exact si on l'a (splice retire les éléments du tableau source)
-    selection = selection.concat(faciles.splice(0, quotas.easy));
-    selection = selection.concat(moyennes.splice(0, quotas.medium));
-    selection = selection.concat(difficiles.splice(0, quotas.hard));
-
-    // Fallback : si pour une raison quelconque une catégorie n'avait pas assez de questions
-    // on rassemble le reste et on complète au besoin pour atteindre 10 questions.
-    let resteDispo = melanger([...faciles, ...moyennes, ...difficiles]);
-    while (selection.length < QUESTIONS_PAR_QUIZ && resteDispo.length > 0) {
-        selection.push(resteDispo.pop());
+    // Paniers mélangés par difficulté
+    const paniers = {};
+    for (const d of DIFFICULTES) {
+        paniers[d] = melanger(disponibles.filter(q => q.difficulty === d));
     }
 
-    // Mélanger le mix final
-    questionsActuelles = melanger(selection).slice(0, QUESTIONS_PAR_QUIZ);
+    // 1. On prend le quota exact là où c'est possible
+    const choix = {};
+    for (const d of DIFFICULTES) choix[d] = paniers[d].splice(0, quotas[d]);
+
+    const total = () => DIFFICULTES.reduce((n, d) => n + choix[d].length, 0);
+
+    // 2. Quota non couvert : on complète avec la difficulté la plus proche.
+    //    Garantit qu'une 1ère année ne reçoit jamais de question "hard", etc.
+    for (const d of DIFFICULTES) {
+        while (choix[d].length < quotas[d] && total() < QUESTIONS_PAR_QUIZ) {
+            let emprunte = false;
+            for (const proche of prochesDe(d)) {
+                if (proche !== d && paniers[proche].length) {
+                    choix[d].push(paniers[proche].pop());
+                    emprunte = true;
+                    break;
+                }
+            }
+            if (!emprunte) break; // plus rien à proximité : on passe à la catégorie suivante
+        }
+    }
+
+    // 3. Filet de sécurité : la banque est trop petite pour cette année
+    if (total() < QUESTIONS_PAR_QUIZ) {
+        for (const d of DIFFICULTES) {
+            while (paniers[d].length && total() < QUESTIONS_PAR_QUIZ) choix[d].push(paniers[d].pop());
+        }
+    }
+
+    // Mélange final : l'ordre de présentation est aléatoire
+    questionsActuelles = melanger(DIFFICULTES.flatMap(d => choix[d])).slice(0, QUESTIONS_PAR_QUIZ);
 
     questionActuelle = 0;
     score = 0;
